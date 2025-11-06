@@ -49,7 +49,9 @@ const AppContent = ({ selectedDataset, onLogout, onDatasetChange, currentRoute }
           <Stack.Screen name="SearchVoters">
             {(props) => <SearchVoters {...props} selectedDataset={selectedDataset} />}
           </Stack.Screen>
-          <Stack.Screen name="DemoVote" component={DemoVote} />
+          <Stack.Screen name="DemoVote">
+            {(props) => <DemoVote {...props} selectedDataset={selectedDataset} />}
+          </Stack.Screen>
           <Stack.Screen name="ListPage">
             {(props) => <ListPage {...props} selectedDataset={selectedDataset} />}
           </Stack.Screen>

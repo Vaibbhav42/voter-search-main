@@ -16,23 +16,23 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { VOTER_DATASETS } from '../data/voters';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-// Use the same memory storage as VoterDetail
-const memoryStorage = {};
-
-export default function ListBox({ selectedDataset = 101 }) {
-  const VOTERS = VOTER_DATASETS[selectedDataset] || VOTER_DATASETS[101];
+export default function ListBox({ selectedDataset: propSelectedDataset = 101 }) {
   const route = useRoute();
   const navigation = useNavigation();
-  const { box } = route.params || {};
+  const { box, selectedDataset: routeSelectedDataset } = route.params || {};
+  
+  // Use selectedDataset from route params if available, otherwise use prop
+  const selectedDataset = routeSelectedDataset || propSelectedDataset;
+  const VOTERS = VOTER_DATASETS[selectedDataset] || VOTER_DATASETS[101];
 
   const [actionModalVisible, setActionModalVisible] = useState(false);
   const [actionType, setActionType] = useState(null); // 'download' or 'share'
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  // --- Helpers ---
+  // --- Helpers using global.memoryStorage ---
   function getVoterStatusColor(id) {
     try {
-      return memoryStorage[`voterStatusColor_${selectedDataset}_${id}`] || null;
+      return global.memoryStorage?.[`voterStatusColor_${selectedDataset}_${id}`] || null;
     } catch (e) {
       return null;
     }
@@ -40,7 +40,7 @@ export default function ListBox({ selectedDataset = 101 }) {
 
   function getQuickBlue(id) {
     try {
-      return memoryStorage[`voterQuickBlue_${selectedDataset}_${id}`] === '1';
+      return global.memoryStorage?.[`voterQuickBlue_${selectedDataset}_${id}`] === '1';
     } catch (e) {
       return false;
     }
@@ -48,7 +48,7 @@ export default function ListBox({ selectedDataset = 101 }) {
 
   function getCustomData(id) {
     try {
-      const raw = memoryStorage[`voterCustomData_${selectedDataset}_${id}`];
+      const raw = global.memoryStorage?.[`voterCustomData_${selectedDataset}_${id}`];
       return raw ? JSON.parse(raw) : { type: null, value: '' };
     } catch (e) {
       return { type: null, value: '' };
@@ -57,7 +57,7 @@ export default function ListBox({ selectedDataset = 101 }) {
 
   function getFoundStatus(id) {
     try {
-      return memoryStorage[`voterFoundStatus_${selectedDataset}_${id}`] === 'found';
+      return global.memoryStorage?.[`voterFoundStatus_${selectedDataset}_${id}`] === 'found';
     } catch (e) {
       return false;
     }
@@ -65,7 +65,7 @@ export default function ListBox({ selectedDataset = 101 }) {
 
   function getVoterMobile(id) {
     try {
-      return memoryStorage[`voterMobile_${selectedDataset}_${id}`];
+      return global.memoryStorage?.[`voterMobile_${selectedDataset}_${id}`];
     } catch (e) {
       return null;
     }
@@ -275,6 +275,10 @@ export default function ListBox({ selectedDataset = 101 }) {
     // Use saved mobile if available, otherwise use original
     const displayMobile = savedMobile !== undefined ? savedMobile : v.mobile;
 
+    // For custom data categories, show different information
+    const isCustomCategory = ['dead', 'migrant', 'out-of-town'].includes(box);
+    const isStatusCategory = ['green', 'yellow', 'red'].includes(box);
+    
     return (
       <TouchableOpacity
         style={styles.voterRow}
@@ -290,29 +294,63 @@ export default function ListBox({ selectedDataset = 101 }) {
         <View style={styles.voterCell}>
           <Text style={styles.voterText}>{v.voterId}</Text>
         </View>
-        <View style={styles.voterCell}>
-          <Text style={styles.voterText}>{displayMobile || '-'}</Text>
-        </View>
-        <View style={styles.voterCell}>
-          {statusText !== '-' && (
-            <View style={styles.statusContainer}>
-              <View
-                style={[
-                  styles.statusDot,
-                  { backgroundColor: blue ? '#007bff' : status }
-                ]}
-              />
-              <Text style={[styles.statusText, { color: textColor }]}>
-                {statusText}
+        {isCustomCategory ? (
+          // For Dead, Migrant, Out Of Town - show location/value
+          <View style={[styles.voterCell, { flex: 2 }]}>
+            <Text style={styles.voterText}>
+              {custom.type && custom.value ? custom.value : '-'}
+            </Text>
+          </View>
+        ) : isStatusCategory ? (
+          // For Favorite, Doubtful, Opposite - show mobile and status only
+          <>
+            <View style={styles.voterCell}>
+              <Text style={styles.voterText}>{displayMobile || '-'}</Text>
+            </View>
+            <View style={styles.voterCell}>
+              {statusText !== '-' && (
+                <View style={styles.statusContainer}>
+                  <View
+                    style={[
+                      styles.statusDot,
+                      { backgroundColor: status }
+                    ]}
+                  />
+                  <Text style={[styles.statusText, { color: textColor }]}>
+                    {statusText}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </>
+        ) : (
+          // For other categories - show mobile, status, and custom
+          <>
+            <View style={styles.voterCell}>
+              <Text style={styles.voterText}>{displayMobile || '-'}</Text>
+            </View>
+            <View style={styles.voterCell}>
+              {statusText !== '-' && (
+                <View style={styles.statusContainer}>
+                  <View
+                    style={[
+                      styles.statusDot,
+                      { backgroundColor: blue ? '#007bff' : status }
+                    ]}
+                  />
+                  <Text style={[styles.statusText, { color: textColor }]}>
+                    {statusText}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.voterCell}>
+              <Text style={styles.voterText}>
+                {custom.type ? `${custom.type}: ${custom.value}` : '-'}
               </Text>
             </View>
-          )}
-        </View>
-        <View style={styles.voterCell}>
-          <Text style={styles.voterText}>
-            {custom.type ? `${custom.type}: ${custom.value}` : '-'}
-          </Text>
-        </View>
+          </>
+        )}
       </TouchableOpacity>
     );
   };
@@ -360,9 +398,22 @@ export default function ListBox({ selectedDataset = 101 }) {
             <View style={styles.tableHeader}>
               <Text style={styles.headerText}>Name</Text>
               <Text style={styles.headerText}>Voter ID</Text>
-              <Text style={styles.headerText}>Mobile</Text>
-              <Text style={styles.headerText}>Status</Text>
-              <Text style={styles.headerText}>Custom</Text>
+              {['dead', 'migrant', 'out-of-town'].includes(box) ? (
+                <Text style={[styles.headerText, { flex: 2 }]}>
+                  {box === 'dead' ? 'Status' : 'Location'}
+                </Text>
+              ) : ['green', 'yellow', 'red'].includes(box) ? (
+                <>
+                  <Text style={styles.headerText}>Mobile</Text>
+                  <Text style={styles.headerText}>Status</Text>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.headerText}>Mobile</Text>
+                  <Text style={styles.headerText}>Status</Text>
+                  <Text style={styles.headerText}>Custom</Text>
+                </>
+              )}
             </View>
 
             {/* Voter List */}

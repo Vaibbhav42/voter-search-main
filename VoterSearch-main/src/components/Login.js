@@ -11,6 +11,7 @@ import {
   Platform,
   Dimensions,
   StatusBar,
+  Image,
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -35,7 +36,7 @@ const Login = ({ onLogin }) => {
 
     setIsLoading(true);
     
-    if (email.toLowerCase() === 'vaibbhav' && password === '123456') {
+    if (email.toLowerCase() === 'anilpawar' && password === 'Ward@6') {
       setIsLoading(false);
       // Direct navigation to dashboard
       onLogin(true);
@@ -67,9 +68,13 @@ const Login = ({ onLogin }) => {
           {/* Header Section */}
           <View style={styles.headerContainer}>
             <View style={styles.logoContainer}>
-              <Text style={styles.welcomeEmoji}>🏛️</Text>
-              <Text style={styles.title}>विजयी भव!</Text>
-              <Text style={styles.subtitle}>Electoral Management System</Text>
+              <Image 
+                source={require('../assets/Anil.jpg')} 
+                style={styles.profileImage}
+                resizeMode="cover"
+              />
+              <Text style={styles.title}>Ward 6</Text>
+              <Text style={styles.subtitle}>श्री अनिल बाळू पवार</Text>
               <View style={styles.titleUnderline} />
             </View>
           </View>
@@ -193,21 +198,34 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 35,
     zIndex: 1,
   },
   logoContainer: {
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderRadius: 25,
-    paddingVertical: 24,
-    paddingHorizontal: 32,
+    paddingVertical: 28,
+    paddingHorizontal: 36,
     backdropFilter: 'blur(10px)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.15,
     shadowRadius: 20,
     elevation: 10,
+  },
+  profileImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    marginBottom: 14,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   welcomeEmoji: {
     fontSize: 60,
@@ -226,10 +244,10 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 18,
     textAlign: 'center',
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.95)',
+    fontWeight: '600',
     marginBottom: 8,
   },
   titleUnderline: {
@@ -237,12 +255,12 @@ const styles = StyleSheet.create({
     height: 3,
     backgroundColor: '#FFD700',
     borderRadius: 2,
-    marginTop: 5,
+    marginTop: 6,
   },
   formContainer: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 25,
-    padding: 32,
+    borderRadius: 20,
+    padding: 24,
     marginHorizontal: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 15 },
@@ -252,11 +270,11 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   inputContainer: {
-    marginBottom: 26,
+    marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: 15,
+    marginBottom: 8,
     color: '#2C3E50',
     fontWeight: '600',
     letterSpacing: 0.5,
@@ -264,10 +282,10 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 2,
     borderColor: '#E8F0FE',
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    borderRadius: 15,
-    fontSize: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    fontSize: 15,
     backgroundColor: '#F8FBFF',
     color: '#2C3E50',
     fontWeight: '500',
@@ -287,38 +305,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#E8F0FE',
-    borderRadius: 15,
+    borderRadius: 12,
     backgroundColor: '#F8FBFF',
   },
   passwordInput: {
     flex: 1,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    fontSize: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
     color: '#2C3E50',
     fontWeight: '500',
   },
   eyeButton: {
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    borderTopRightRadius: 15,
-    borderBottomRightRadius: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
   },
   eyeIcon: {
-    fontSize: 22,
+    fontSize: 20,
   },
   secureText: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#27AE60',
-    marginTop: 6,
+    marginTop: 5,
     fontStyle: 'italic',
     fontWeight: '500',
   },
   loginButton: {
     backgroundColor: '#4A90E2',
-    paddingVertical: 18,
-    borderRadius: 15,
-    marginTop: 30,
+    paddingVertical: 15,
+    borderRadius: 12,
+    marginTop: 10,
     shadowColor: '#4A90E2',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
@@ -332,18 +350,18 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: '#FFFFFF',
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: 'bold',
     letterSpacing: 1,
   },
   forgotPassword: {
-    marginTop: 25,
+    marginTop: 12,
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   forgotPasswordText: {
     color: '#4A90E2',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     textDecorationLine: 'underline',
   },

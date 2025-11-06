@@ -10,8 +10,10 @@ import {
 import BackToDashboard from '../components/BackToDashboard';
 import { VOTER_DATASETS } from '../data/voters';
 
-// Simple in-memory storage as fallback
-const memoryStorage = {};
+// Use global memory storage
+if (typeof global !== 'undefined') {
+  global.memoryStorage = global.memoryStorage || {};
+}
 
 export default function Survey({ navigation, selectedDataset = 101 }) {
   const VOTERS = VOTER_DATASETS[selectedDataset] || VOTER_DATASETS[101];
@@ -30,7 +32,7 @@ export default function Survey({ navigation, selectedDataset = 101 }) {
   // Helper functions to get saved data from storage
   const getVoterStatusColor = useCallback((id) => {
     try {
-      return memoryStorage[`voterStatusColor_${selectedDataset}_${id}`] || null;
+      return global.memoryStorage[`voterStatusColor_${selectedDataset}_${id}`] || null;
     } catch (e) {
       return null;
     }
@@ -38,7 +40,7 @@ export default function Survey({ navigation, selectedDataset = 101 }) {
 
   const getCustomData = useCallback((id) => {
     try {
-      const raw = memoryStorage[`voterCustomData_${selectedDataset}_${id}`];
+      const raw = global.memoryStorage[`voterCustomData_${selectedDataset}_${id}`];
       return raw ? JSON.parse(raw) : { type: null, value: '' };
     } catch (e) {
       return { type: null, value: '' };
@@ -47,7 +49,7 @@ export default function Survey({ navigation, selectedDataset = 101 }) {
 
   const getVoterMobile = useCallback((id) => {
     try {
-      return memoryStorage[`voterMobile_${selectedDataset}_${id}`];
+      return global.memoryStorage[`voterMobile_${selectedDataset}_${id}`];
     } catch (e) {
       return null;
     }
@@ -230,50 +232,6 @@ export default function Survey({ navigation, selectedDataset = 101 }) {
           </View>
         </View>
 
-        {/* Gender Distribution */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>👥 Gender Distribution</Text>
-          <View style={styles.contactGrid}>
-            <View style={[styles.statCard, styles.maleCard]}>
-              <Text style={styles.statEmoji}>👨</Text>
-              <Text style={styles.statLabel}>Male</Text>
-              <Text style={styles.statCount}>{voterStats.male}</Text>
-              <Text style={styles.statPercent}>
-                {voterStats.total > 0 ? ((voterStats.male / voterStats.total) * 100).toFixed(1) : 0}%
-              </Text>
-            </View>
-
-            <View style={[styles.statCard, styles.femaleCard]}>
-              <Text style={styles.statEmoji}>👩</Text>
-              <Text style={styles.statLabel}>Female</Text>
-              <Text style={styles.statCount}>{voterStats.female}</Text>
-              <Text style={styles.statPercent}>
-                {voterStats.total > 0 ? ((voterStats.female / voterStats.total) * 100).toFixed(1) : 0}%
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Summary */}
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>📈 Quick Summary</Text>
-          <Text style={styles.summaryText}>
-            • Total voters surveyed: {voterStats.total.toLocaleString()}
-          </Text>
-          <Text style={styles.summaryText}>
-            • Status assigned: {(voterStats.favorite + voterStats.doubtful + voterStats.opposite)} voters
-          </Text>
-          <Text style={styles.summaryText}>
-            • Special categories: {(voterStats.migrant + voterStats.outOfTown + voterStats.dead)} voters
-          </Text>
-          <Text style={styles.summaryText}>
-            • Contact coverage: {voterStats.withMobile} voters have mobile numbers
-          </Text>
-          <Text style={styles.summaryText}>
-            • Gender breakdown: {voterStats.male} Male, {voterStats.female} Female
-          </Text>
-        </View>
-
         </View>
       </ScrollView>
     </View>
@@ -431,18 +389,6 @@ const styles = StyleSheet.create({
     width: '45%',
   },
 
-  // Gender Card Colors
-  maleCard: {
-    borderTopWidth: 5,
-    borderTopColor: '#007bff',
-    width: '45%',
-  },
-  femaleCard: {
-    borderTopWidth: 5,
-    borderTopColor: '#e83e8c',
-    width: '45%',
-  },
-
   // Stat Card Content
   statEmoji: {
     fontSize: 28,
@@ -465,33 +411,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#a0aec0',
     fontWeight: '600',
-  },
-
-  // Summary Card
-  summaryCard: {
-    backgroundColor: '#f7fafc',
-    borderRadius: 20,
-    padding: 25,
-    marginBottom: 25,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  summaryTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2d3748',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  summaryText: {
-    fontSize: 16,
-    color: '#4a5568',
-    marginBottom: 8,
-    lineHeight: 24,
   },
 });

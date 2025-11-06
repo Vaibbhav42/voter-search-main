@@ -16,31 +16,23 @@ const { width: screenWidth } = Dimensions.get('window');
 const ListPage = ({ selectedDataset = 101, navigation }) => {
   const VOTERS = VOTER_DATASETS[selectedDataset] || VOTER_DATASETS[101];
 
-  // --- Helper Functions (Mock implementation for demo) ---
+  // --- Helper Functions using memoryStorage ---
   const getVoterStatusColor = (id) => {
-    // Mock implementation - simple logic without storage
-    const index = parseInt(id.split('_')[1]) || 0;
-    if (index % 5 === 0) return '#28a745'; // Green
-    if (index % 5 === 1) return '#ffc107'; // Yellow
-    if (index % 5 === 2) return '#dc3545'; // Red
-    return null;
-  };
-
-  const getQuickBlue = (id) => {
-    const index = parseInt(id.split('_')[1]) || 0;
-    return index % 10 < 3;
+    const key = `voterStatusColor_${selectedDataset}_${id}`;
+    return global.memoryStorage?.[key] || null;
   };
 
   const getCustomData = (id) => {
-    const index = parseInt(id.split('_')[1]) || 0;
-    if (index % 15 === 0) return { type: 'Migrant', value: 'Temporary' };
-    if (index % 17 === 0) return { type: 'Out Of Town', value: 'Working' };
+    const key = `voterCustomData_${selectedDataset}_${id}`;
+    const data = global.memoryStorage?.[key];
+    if (data) {
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        return { type: null, value: '' };
+      }
+    }
     return { type: null, value: '' };
-  };
-
-  const getFoundStatus = (id) => {
-    const index = parseInt(id.split('_')[1]) || 0;
-    return index % 3 === 0;
   };
 
   // --- Counting Logic ---
@@ -125,7 +117,7 @@ const ListPage = ({ selectedDataset = 101, navigation }) => {
   ];
 
   const handleCardPress = (cardKey) => {
-    navigation.navigate('ListBox', { box: cardKey });
+    navigation.navigate('ListBox', { box: cardKey, selectedDataset });
   };
 
   return (
